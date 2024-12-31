@@ -16,6 +16,9 @@ public class EmployeeDto {
     private String salary;
     private String project;
 
+    private LocalDateTime createdAt; // Include in DTO
+    private LocalDateTime updatedAt; // Include in DTO
+
     public Long getEmpId() {
         return empId;
     }
@@ -64,14 +67,33 @@ public class EmployeeDto {
         this.project = project;
     }
 
-    public EmployeeDto(Long empId, String empName, String email, String mobileNo, String salary, String project) {
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public EmployeeDto(Long empId, String empName, String email, String mobileNo, String salary, String project, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.empId = empId;
         this.empName = empName;
         this.email = email;
         this.mobileNo = mobileNo;
         this.salary = salary;
         this.project = project;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
+
 
     public EmployeeDto() {
     }
@@ -85,6 +107,8 @@ public class EmployeeDto {
                 ", mobileNo='" + mobileNo + '\'' +
                 ", salary='" + salary + '\'' +
                 ", project='" + project + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

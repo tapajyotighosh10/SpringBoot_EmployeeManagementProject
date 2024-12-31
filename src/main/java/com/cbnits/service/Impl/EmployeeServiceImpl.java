@@ -3,6 +3,7 @@ package com.cbnits.service.Impl;
 
 import com.cbnits.dto.EmployeeDto;
 import com.cbnits.entity.Employee;
+import com.cbnits.exception.ResourceNotFoundException;
 import com.cbnits.mapper.EmployeeMapper;
 import com.cbnits.repository.EmployeeRepository;
 import com.cbnits.service.EmployeeService;
@@ -16,10 +17,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
     @Autowired
     private EmployeeMapper employeeMapper;
 
@@ -39,17 +36,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         return savedEmployeeDto;
     }
 
-//    private Employee convertDtoToEntity(EmployeeDto employeeDto){
-//        Employee employee = this.modelMapper.map(employeeDto,Employee.class);
-//        return employee;
-//
-//    }
-//
-//    private EmployeeDto convertEntityToDto(Employee employee) {
-//
-//        EmployeeDto employeeDto = this.modelMapper.map(employee,EmployeeDto.class);
-//        return employeeDto;
-//        }
-
-
+    @Override
+    public EmployeeDto getEmployeeById(Long empId) {
+     Employee employee=   employeeRepository.findById(empId)
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Employee is not exit with this given id"+empId));
+        return employeeMapper.convertEntityToDto(employee);
     }
+}
