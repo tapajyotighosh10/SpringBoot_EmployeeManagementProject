@@ -7,10 +7,11 @@ import com.cbnits.exception.ResourceNotFoundException;
 import com.cbnits.mapper.EmployeeMapper;
 import com.cbnits.repository.EmployeeRepository;
 import com.cbnits.service.EmployeeService;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -42,5 +43,52 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(()->
                         new ResourceNotFoundException("Employee is not exit with this given id"+empId));
         return employeeMapper.convertEntityToDto(employee);
+    }
+
+    @Override
+    public List<EmployeeDto> getAllEmployees() {
+        List<Employee> empList= employeeRepository.findAll();
+        return empList.stream().map((emp) -> employeeMapper.convertEntityToDto(emp))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public EmployeeDto updateEmployee(Long empId, EmployeeDto updatedEmployee) {
+        Employee employee=   employeeRepository.findById(empId)
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Employee is not exit with this given id"+empId));
+
+        // Update only if the value is non-null
+        if (updatedEmployee.getEmpName() != null) {
+            employee.setEmpName(updatedEmployee.getEmpName());
+        }
+        if (updatedEmployee.getMobileNo() != null) {
+            employee.setMobileNo(updatedEmployee.getMobileNo());
+        }
+        if (updatedEmployee.getEmail() != null) {
+            employee.setEmail(updatedEmployee.getEmail());
+        }
+        if (updatedEmployee.getSalary() != null) {
+            employee.setSalary(updatedEmployee.getSalary());
+        }
+        if (updatedEmployee.getProject() != null) {
+            employee.setProject(updatedEmployee.getProject());
+        }
+//        if (updatedEmployee.getUpdatedAt() != null) {
+//            employee.setUpdatedAt(updatedEmployee.getUpdatedAt());
+//        }
+
+        Employee updatedEmployeeObj =  employeeRepository.save(employee);
+
+        return employeeMapper.convertEntityToDto(updatedEmployeeObj);
+    }
+
+    @Override
+    public String deleteEmployeeById(Long empId) {
+        Employee employee=   employeeRepository.findById(empId)
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Employee is not exit with this given id: "+empId));
+                employeeRepository.deleteById(empId);
+                return "Employee deleted with id: "+empId;
     }
 }
