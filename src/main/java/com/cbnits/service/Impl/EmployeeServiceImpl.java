@@ -74,9 +74,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (updatedEmployee.getProject() != null) {
             employee.setProject(updatedEmployee.getProject());
         }
-//        if (updatedEmployee.getUpdatedAt() != null) {
-//            employee.setUpdatedAt(updatedEmployee.getUpdatedAt());
-//        }
 
         Employee updatedEmployeeObj =  employeeRepository.save(employee);
 
