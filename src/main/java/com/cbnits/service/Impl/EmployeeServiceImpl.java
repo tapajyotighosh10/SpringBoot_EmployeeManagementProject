@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,38 +26,33 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
         // Map DTO to entity
         Employee employee = employeeMapper.convertDtoToEntity(employeeDto);
-        System.out.println("Mapped Employee entity: " + employee);
-
         // Save the entity to the database
         Employee savedEmployee = employeeRepository.save(employee);
-        System.out.println("Saved Employee: " + savedEmployee); // Check if empId and other fields are populated
 
         // Map saved entity back to DTO
-        EmployeeDto savedEmployeeDto = employeeMapper.convertEntityToDto(savedEmployee);
-        System.out.println("Mapped back to DTO: " + savedEmployeeDto);
-        return savedEmployeeDto;
+        return employeeMapper.convertEntityToDto(savedEmployee);
     }
 
     @Override
     public EmployeeDto getEmployeeById(Long empId) {
-     Employee employee=   employeeRepository.findById(empId)
-                .orElseThrow(()->
-                        new ResourceNotFoundException("Employee is not exit with this given id"+empId));
+        Employee employee = employeeRepository.findById(empId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee is not exit with this given id" + empId));
         return employeeMapper.convertEntityToDto(employee);
     }
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
-        List<Employee> empList= employeeRepository.findAll();
+        List<Employee> empList = employeeRepository.findAll();
         return empList.stream().map((emp) -> employeeMapper.convertEntityToDto(emp))
                 .collect(Collectors.toList());
     }
 
     @Override
     public EmployeeDto updateEmployee(Long empId, EmployeeDto updatedEmployee) {
-        Employee employee=   employeeRepository.findById(empId)
-                .orElseThrow(()->
-                        new ResourceNotFoundException("Employee is not exit with this given id"+empId));
+        Employee employee = employeeRepository.findById(empId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee is not exit with this given id" + empId));
 
         // Update only if the value is non-null
         if (updatedEmployee.getEmpName() != null) {
@@ -75,17 +71,50 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setProject(updatedEmployee.getProject());
         }
 
-        Employee updatedEmployeeObj =  employeeRepository.save(employee);
+        Employee updatedEmployeeObj = employeeRepository.save(employee);
 
         return employeeMapper.convertEntityToDto(updatedEmployeeObj);
     }
 
     @Override
     public String deleteEmployeeById(Long empId) {
-        Employee employee=   employeeRepository.findById(empId)
-                .orElseThrow(()->
-                        new ResourceNotFoundException("Employee is not exit with this given id: "+empId));
-                employeeRepository.deleteById(empId);
-                return "Employee deleted with id: "+empId;
+        Employee employee = employeeRepository.findById(empId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee is not exit with this given id: " + empId));
+        employeeRepository.deleteById(empId);
+        return "Employee deleted with id: " + empId;
     }
+
+    @Override
+    public Optional<EmployeeDto> getEmployeeByName(String name) {
+        return employeeRepository.findEmployeeByEmpName(name)
+                .map(employeeMapper::convertEntityToDto); // converts Employee → EmployeeDto
+    }
+
+    @Override
+    public Optional<EmployeeDto> findByEmail(String email) {
+        return employeeRepository.findByEmail(email)
+                .map(employeeMapper::convertEntityToDto);
+    }
+
+
+    @Override
+    public EmployeeDto createOrUpdateEmployee(EmployeeDto employeeDto) {
+        Optional<Employee> existingEmployee = employeeRepository.findByEmail(employeeDto.getEmail());
+
+        Employee employee = existingEmployee.orElseGet(Employee::new);
+
+        // If it's a new employee, set the email to establish uniqueness
+        employee.setEmail(employeeDto.getEmail());
+
+        // Set/update other fields
+        employee.setEmpName(employeeDto.getEmpName());
+        employee.setProject(employeeDto.getProject());
+        employee.setSalary(employeeDto.getSalary());
+        employee.setMobileNo(employeeDto.getMobileNo());
+
+        Employee savedEmployee = employeeRepository.save(employee);
+        return employeeMapper.convertEntityToDto(savedEmployee);
+    }
+
 }
