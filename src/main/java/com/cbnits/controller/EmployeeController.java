@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cbnits")
@@ -22,9 +23,10 @@ public class EmployeeController {
         EmployeeDto savedEmp = employeeService.createEmployee(employeeDto);
         return new ResponseEntity<>(savedEmp, HttpStatus.CREATED);
     }
-// Build Rest API for get employee by ID
+
+    // Build Rest API for get employee by ID
     @GetMapping("/search/{empId}")
-    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable("empId") Long empId){
+    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable("empId") Long empId) {
         EmployeeDto savedEmp = employeeService.getEmployeeById(empId);
         return ResponseEntity.ok(savedEmp);
     }
@@ -32,17 +34,17 @@ public class EmployeeController {
     // Build Get all employees REST API
 
     @GetMapping("/all")
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees(){
-        List<EmployeeDto> allEmp=employeeService.getAllEmployees();
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
+        List<EmployeeDto> allEmp = employeeService.getAllEmployees();
         return ResponseEntity.ok(allEmp);
     }
 
     // Build update employee REST API
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Long empId,@RequestBody EmployeeDto updatedEmployee){
-      EmployeeDto empDto =  employeeService.updateEmployee(empId,updatedEmployee);
-     return ResponseEntity.ok(empDto);
+    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Long empId, @RequestBody EmployeeDto updatedEmployee) {
+        EmployeeDto empDto = employeeService.updateEmployee(empId, updatedEmployee);
+        return ResponseEntity.ok(empDto);
     }
 
     @DeleteMapping("/delete/{empId}")
@@ -53,4 +55,17 @@ public class EmployeeController {
         // Return response with a message
         return ResponseEntity.ok(resultMessage);  // 200 OK response with success message
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Optional<EmployeeDto>> getEmployeeBYEmpName(@RequestParam("empName") String empName) {
+        Optional<EmployeeDto> empDetails = employeeService.getEmployeeByName(empName);
+        return new ResponseEntity<>(empDetails, HttpStatus.OK);
+    }
+
+    @PostMapping("/upsert")
+    public ResponseEntity<EmployeeDto> createOrUpdateEmployee(@RequestBody EmployeeDto employeeDto) {
+
+        return new ResponseEntity<>(employeeService.createOrUpdateEmployee(employeeDto), HttpStatus.OK);
+    }
+
 }
