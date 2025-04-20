@@ -2,9 +2,11 @@ package com.cbnits.controller;
 
 import com.cbnits.dto.EmployeeDto;
 import com.cbnits.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,13 +14,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/cbnits")
+@Validated
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
 
     @PostMapping("/add")
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<EmployeeDto> createEmployee(@Valid @RequestBody EmployeeDto employeeDto) {
         System.out.println("Received EmployeeDto: " + employeeDto);
         EmployeeDto savedEmp = employeeService.createEmployee(employeeDto);
         return new ResponseEntity<>(savedEmp, HttpStatus.CREATED);
@@ -42,7 +45,7 @@ public class EmployeeController {
     // Build update employee REST API
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Long empId, @RequestBody EmployeeDto updatedEmployee) {
+    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Long empId, @Valid @RequestBody EmployeeDto updatedEmployee) {
         EmployeeDto empDto = employeeService.updateEmployee(empId, updatedEmployee);
         return ResponseEntity.ok(empDto);
     }
