@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class EmployeeDto {
     private Long empId;
-    @NotNull(message = "Name Can't be null")
+    @NotNull(message = "Name cannot be null")
     private String empName;
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
