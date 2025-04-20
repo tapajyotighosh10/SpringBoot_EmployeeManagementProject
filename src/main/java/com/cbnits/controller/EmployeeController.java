@@ -57,7 +57,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Optional<EmployeeDto>> getEmployeeBYEmpName(@RequestBody String empName) {
+    public ResponseEntity<Optional<EmployeeDto>> getEmployeeBYEmpName(@RequestParam("empName") String empName) {
         Optional<EmployeeDto> empDetails = employeeService.getEmployeeByName(empName);
         return new ResponseEntity<>(empDetails, HttpStatus.OK);
     }
