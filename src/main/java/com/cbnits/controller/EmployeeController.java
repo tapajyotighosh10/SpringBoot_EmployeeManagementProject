@@ -1,5 +1,6 @@
 package com.cbnits.controller;
 
+import com.cbnits.dto.EmployeeCreatedResponseDto;
 import com.cbnits.dto.EmployeeDto;
 import com.cbnits.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -9,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -21,10 +24,18 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping("/add")
-    public ResponseEntity<EmployeeDto> createEmployee(@Valid @RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<EmployeeCreatedResponseDto<EmployeeDto>> createEmployee(@Valid @RequestBody EmployeeDto employeeDto) {
         System.out.println("Received EmployeeDto: " + employeeDto);
         EmployeeDto savedEmp = employeeService.createEmployee(employeeDto);
-        return new ResponseEntity<>(savedEmp, HttpStatus.CREATED);
+
+        EmployeeCreatedResponseDto<EmployeeDto> savedRes = new EmployeeCreatedResponseDto<>(
+                HttpStatus.CREATED.value(),
+                "Employee Saved Successfully",
+                savedEmp,
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(savedRes, HttpStatus.CREATED);
     }
 
     // Build Rest API for get employee by ID
@@ -37,9 +48,17 @@ public class EmployeeController {
     // Build Get all employees REST API
 
     @GetMapping("/all")
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
+    public ResponseEntity<EmployeeCreatedResponseDto<List<EmployeeDto>>> getAllEmployees() {
         List<EmployeeDto> allEmp = employeeService.getAllEmployees();
-        return ResponseEntity.ok(allEmp);
+
+        EmployeeCreatedResponseDto<List<EmployeeDto>> allEmployee= new EmployeeCreatedResponseDto<>(
+                HttpStatus.OK.value(),
+                "All employee fetch successfully",
+                allEmp,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(allEmployee);
     }
 
     // Build update employee REST API
@@ -70,5 +89,26 @@ public class EmployeeController {
 
         return new ResponseEntity<>(employeeService.createOrUpdateEmployee(employeeDto), HttpStatus.OK);
     }
+
+    @GetMapping("/salary-range")
+    public ResponseEntity<List<EmployeeDto>> getEmployeeBySalaryRange(
+            @RequestParam("min") String min,
+            @RequestParam("max") String max
+    ){
+        List<EmployeeDto> allEmp = employeeService.getEmployeeFromSalaryRange(min,max);
+        return new ResponseEntity<>(allEmp,HttpStatus.OK);
+    }
+
+    @GetMapping("/group-by-project")
+    public ResponseEntity<Map<String, List<EmployeeDto>>> getEmployeesGroupedByProject() {
+        Map<String, List<EmployeeDto>> grouped = employeeService.getEmployeesGroupedByProject();
+        return ResponseEntity.ok(grouped);
+    }
+
+    @PostMapping("/batch-add")
+    public ResponseEntity<List<EmployeeDto>> addMultipleEmployees(@RequestBody List<@Valid EmployeeDto> employeeList) {
+        return ResponseEntity.ok(employeeService.saveAllEmployees(employeeList));
+    }
+
 
 }
