@@ -11,16 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private EmployeeMapper employeeMapper;
+
+    private final EmployeeRepository employeeRepository;
+
+    private final EmployeeMapper employeeMapper;
+
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
+        this.employeeRepository = employeeRepository;
+        this.employeeMapper = employeeMapper;
+    }
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
@@ -44,7 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDto> getAllEmployees() {
         List<Employee> empList = employeeRepository.findAll();
-        return empList.stream().map((emp) -> employeeMapper.convertEntityToDto(emp))
+        return empList.stream().map(emp -> employeeMapper.convertEntityToDto(emp))
                 .collect(Collectors.toList());
     }
 
@@ -115,6 +121,40 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
         return employeeMapper.convertEntityToDto(savedEmployee);
+    }
+
+    @Override
+    public List<EmployeeDto> getEmployeeFromSalaryRange(String min, String max) {
+
+        double minSalary = Double.parseDouble(min);
+        double maxSalary = Double.parseDouble(max);
+
+        List<Employee> empRange = employeeRepository.findBySalaryBetween(minSalary, maxSalary);
+
+        return empRange.stream()
+                .map(employeeMapper::convertEntityToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<EmployeeDto>> getEmployeesGroupedByProject() {
+        return employeeRepository.findAll().stream()
+                .map(employeeMapper::convertEntityToDto)
+                .collect(Collectors.groupingBy(EmployeeDto::getProject));
+    }
+
+    @Override
+    public List<EmployeeDto> saveAllEmployees(List<EmployeeDto> dtoList) {
+
+        List<Employee> entities = dtoList.stream()
+                .map(employeeMapper::convertDtoToEntity)
+                .toList();
+
+        List<Employee> saved = employeeRepository.saveAll(entities);
+
+        return saved.stream()
+                .map(employeeMapper::convertEntityToDto)
+                .toList();
     }
 
 }
